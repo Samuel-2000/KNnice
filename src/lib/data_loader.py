@@ -6,6 +6,7 @@ from torch import utils as utils
 from torchvision import datasets, transforms
 from torch.utils.data import Subset
 from .cityscapes import CityscapesDataset
+from .cityscapes import download_cityscapes
 
 
 def data_load(args):
@@ -45,6 +46,9 @@ def data_load(args):
         test_set = datasets.CIFAR100(paths.dataset, train=False, download=download_state, transform=transform)
     elif args.dataset == 3:
         # Instantiate CityscapesDataset
+        if not (paths.depth.exists()):
+            download_cityscapes()
+
         cityscapes_dataset = CityscapesDataset(paths.depth, paths.image)
 
         print(len(cityscapes_dataset))

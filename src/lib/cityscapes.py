@@ -5,6 +5,95 @@ from torch.utils.data import Dataset
 import os
 from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor
 from torchvision.models import resnet18
+from . import paths
+
+import shutil
+import requests
+import zipfile
+
+def download_cityscapes():
+    # URL for the login action
+    login_url = 'https://www.cityscapes-dataset.com/login/'
+
+    # URLs for downloading the file after logging in
+    urls = [
+        'https://www.cityscapes-dataset.com/file-handling/?packageID=3',
+        'https://www.cityscapes-dataset.com/file-handling/?packageID=7'
+    ]
+
+    # login credentials and any other required form data for POST request
+    login_data = {
+        'username': 'bahno',
+        'password': 'X4W?y2H%h-t445t',
+        'submit': 'Login'
+    }
+
+    # start a session so that cookies are saved between requests
+    with requests.Session() as session:
+        # send POST request to the login URL with the login data
+        response = session.post(login_url, data=login_data)
+
+        # check if login was successful
+        if response.status_code == 200:
+            print("Login successful")
+        else:
+            print("Login failed")
+            exit()
+
+        # send GET request to the download URLs
+        for url in urls:
+            print(f"Downloading file from: {url}")
+            response = session.get(url)
+
+            # check if the file was fetched successfully
+            if response.status_code == 200:
+                # write the content to a file
+                content_disposition = response.headers.get('content-disposition')
+                filename = content_disposition.split('filename=')[1].replace("\"", "")
+
+                if not os.path.isdir('dataset'):
+                    os.mkdir('dataset')
+
+                with open("dataset/" + filename, 'wb') as file:
+                    file.write(response.content)
+                print(f"File downloaded successfully as {filename}")
+
+                # unzip contents
+                with zipfile.ZipFile("dataset/" + filename, 'r') as zip_ref:
+                    # check what zip file we are extracting
+                    if "disparity" in filename:
+                        directory_to_extract_to = paths.depth
+                    else:
+                        directory_to_extract_to = paths.image
+
+                    # extract the contents
+                    zip_ref.extractall(directory_to_extract_to)
+                    zip_ref.close()
+
+                # remove old zip file, license and readme
+                os.remove("dataset/" + filename)
+                os.remove(directory_to_extract_to + "license.txt")
+                os.remove(directory_to_extract_to + "README")
+
+                # parent folder to be removed
+                core_folder = os.path.join(directory_to_extract_to, filename.split("_")[0])
+
+                # move the contents of the parent folder to its original place
+                for item in os.listdir(core_folder):
+                    item_path = os.path.join(core_folder, item)
+
+                    # check if the item is a folder
+                    if os.path.isdir(item_path):
+                        # construct the destination path for the current item
+                        destination_item_path = os.path.join(directory_to_extract_to, item)
+                        # move the subfolder to the destination
+                        shutil.move(item_path, destination_item_path)
+
+                # remove the parent folder
+                os.rmdir(core_folder)
+
+            else:
+                print("Failed to download the file")
 
 class CityscapesDataset(Dataset):
     def __init__(self, depth_dir: str, data_dir: str, resnet_weights: dict = resnet18(pretrained=False).state_dict()):

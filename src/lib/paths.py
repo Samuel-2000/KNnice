@@ -15,13 +15,13 @@ adam_true = args.adam
 dropout = args.dropout
 
 # general directories
-current_model_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-dataset = Path(current_model_dir, "datasets")
+proj_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+dataset = Path(proj_dir, "datasets")
 
-depth = Path(dataset, "disparity/train")
-image = Path(dataset, "leftImg8bit/train")
+depth = Path(dataset, "depth/train")
+image = Path(dataset, "image/train")
 
-models_dir = Path(current_model_dir, "models")
+models_dir = Path(proj_dir, "models")
 
 models_init_dir = Path(models_dir, "__models_initializations")
 all_steps_dir = Path(models_dir, "_all_steps")
