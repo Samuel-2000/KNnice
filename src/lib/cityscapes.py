@@ -48,18 +48,18 @@ def download_cityscapes():
             # write the content to a file
             content_disposition = response.headers.get('content-disposition')
             filename = content_disposition.split('filename=')[1].replace("\"", "")
+            if os.path.join(directory_to_extract_to, filename).exists():
+                print("dataset already downloaded")
+                continue
 
             with open(filename, 'wb') as download_file:
-                if not os.path.isdir('dataset'):
-                    os.mkdir('dataset')
-
                 for chunk in response.iter_content(chunk_size=8192):
                     download_file.write(chunk)
 
                 print(f"File downloaded successfully as {filename}")
 
                 # unzip contents
-                with zipfile.ZipFile("dataset/" + filename, 'r') as zip_ref:
+                with zipfile.ZipFile(filename, 'r') as zip_ref:
                     # check what zip file we are extracting
                     if "disparity" in filename:
                         directory_to_extract_to = paths.depth
@@ -72,10 +72,10 @@ def download_cityscapes():
                 download_file.close()
 
             # remove old zip file, license and readme
-            os.remove("dataset/" + filename)
+            os.remove(filename)
             os.remove(directory_to_extract_to + "license.txt")
             os.remove(directory_to_extract_to + "README")
-
+            """
             # parent folder to be removed
             core_folder = os.path.join(directory_to_extract_to, filename.split("_")[0])
 
@@ -92,6 +92,7 @@ def download_cityscapes():
 
             # remove the parent folder
             os.rmdir(core_folder)
+            """
 
 class CityscapesDataset(Dataset):
     def __init__(self, depth_dir: str, data_dir: str, resnet_weights: dict = resnet18(pretrained=False).state_dict()):
