@@ -43,19 +43,19 @@ def download_cityscapes():
         # send GET request to the download URLs
         for url in urls:
             print(f"Downloading file from: {url}")
-            response = session.get(url)
+            response = session.get(url, stream=True)
 
-            # check if the file was fetched successfully
-            if response.status_code == 200:
-                # write the content to a file
-                content_disposition = response.headers.get('content-disposition')
-                filename = content_disposition.split('filename=')[1].replace("\"", "")
+            # write the content to a file
+            content_disposition = response.headers.get('content-disposition')
+            filename = content_disposition.split('filename=')[1].replace("\"", "")
 
+            with open(filename, 'wb') as download_file:
                 if not os.path.isdir('dataset'):
                     os.mkdir('dataset')
 
-                with open("dataset/" + filename, 'wb') as file:
-                    file.write(response.content)
+                for chunk in response.iter_content(chunk_size=8192):
+                    download_file.write(chunk)
+
                 print(f"File downloaded successfully as {filename}")
 
                 # unzip contents
@@ -69,31 +69,29 @@ def download_cityscapes():
                     # extract the contents
                     zip_ref.extractall(directory_to_extract_to)
                     zip_ref.close()
+                download_file.close()
 
-                # remove old zip file, license and readme
-                os.remove("dataset/" + filename)
-                os.remove(directory_to_extract_to + "license.txt")
-                os.remove(directory_to_extract_to + "README")
+            # remove old zip file, license and readme
+            os.remove("dataset/" + filename)
+            os.remove(directory_to_extract_to + "license.txt")
+            os.remove(directory_to_extract_to + "README")
 
-                # parent folder to be removed
-                core_folder = os.path.join(directory_to_extract_to, filename.split("_")[0])
+            # parent folder to be removed
+            core_folder = os.path.join(directory_to_extract_to, filename.split("_")[0])
 
-                # move the contents of the parent folder to its original place
-                for item in os.listdir(core_folder):
-                    item_path = os.path.join(core_folder, item)
+            # move the contents of the parent folder to its original place
+            for item in os.listdir(core_folder):
+                item_path = os.path.join(core_folder, item)
 
-                    # check if the item is a folder
-                    if os.path.isdir(item_path):
-                        # construct the destination path for the current item
-                        destination_item_path = os.path.join(directory_to_extract_to, item)
-                        # move the subfolder to the destination
-                        shutil.move(item_path, destination_item_path)
+                # check if the item is a folder
+                if os.path.isdir(item_path):
+                    # construct the destination path for the current item
+                    destination_item_path = os.path.join(directory_to_extract_to, item)
+                    # move the subfolder to the destination
+                    shutil.move(item_path, destination_item_path)
 
-                # remove the parent folder
-                os.rmdir(core_folder)
-
-            else:
-                print("Failed to download the file")
+            # remove the parent folder
+            os.rmdir(core_folder)
 
 class CityscapesDataset(Dataset):
     def __init__(self, depth_dir: str, data_dir: str, resnet_weights: dict = resnet18(pretrained=False).state_dict()):
