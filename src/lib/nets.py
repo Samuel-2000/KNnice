@@ -5,6 +5,12 @@ from torchvision.models import resnet18
 from .arg_parse import parse_arguments
 
 
+"""
+TODO segmentation models pytorch
+
+"""
+
+
 class DepthModel(nn.Module):
     def __init__(self):
         super(DepthModel, self).__init__()
