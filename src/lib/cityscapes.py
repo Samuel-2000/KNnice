@@ -57,23 +57,24 @@ def download_cityscapes():
                 print("dataset already downloaded")
                 continue
 
-            with open(filename, 'wb') as download_file:
+            os.makedirs(directory_to_extract_to, exist_ok=True)  # make dirs if not exist
+            with open(file_path, 'wb') as download_file:
                 for chunk in response.iter_content(chunk_size=8192):
                     download_file.write(chunk)
 
-                print(f"File downloaded successfully as {filename}")
+                print(f"File downloaded successfully as {file_path}")
 
                 # unzip contents
-                with zipfile.ZipFile(filename, 'r') as zip_ref:
+                with zipfile.ZipFile(file_path, 'r') as zip_ref:
                     # extract the contents
                     zip_ref.extractall(directory_to_extract_to)
                     zip_ref.close()
                 download_file.close()
 
             # remove old zip file, license and readme
-            os.remove(filename)
-            os.remove(directory_to_extract_to + "license.txt")
-            os.remove(directory_to_extract_to + "README")
+            os.remove(file_path)
+            os.remove(os.path.join(directory_to_extract_to, "license.txt"))
+            os.remove(os.path.join(directory_to_extract_to, "README"))
             """
             # parent folder to be removed
             core_folder = os.path.join(directory_to_extract_to, filename.split("_")[0])
