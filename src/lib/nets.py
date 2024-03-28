@@ -3,12 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 from torchvision.models import resnet18
 from .arg_parse import parse_arguments
-
-
-"""
-TODO segmentation models pytorch
-
-"""
+import segmentation_models_pytorch as smp # https://pypi.org/project/segmentation-models-pytorch/0.0.3/
 
 
 class DepthModel(nn.Module):

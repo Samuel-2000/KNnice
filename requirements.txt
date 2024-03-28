@@ -5,3 +5,4 @@ torch>=1.12.1+cu116
 torchvision>=0.13.1+cu116
 torchsummary
 requests
+segmentation_models_pytorch
