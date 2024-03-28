@@ -48,6 +48,10 @@ def download_cityscapes():
             # write the content to a file
             content_disposition = response.headers.get('content-disposition')
             filename = content_disposition.split('filename=')[1].replace("\"", "")
+            directory_to_extract_to = paths.image
+            if "disparity" in filename:
+                directory_to_extract_to = paths.depth
+
             if os.path.join(directory_to_extract_to, filename).exists():
                 print("dataset already downloaded")
                 continue
@@ -60,12 +64,6 @@ def download_cityscapes():
 
                 # unzip contents
                 with zipfile.ZipFile(filename, 'r') as zip_ref:
-                    # check what zip file we are extracting
-                    if "disparity" in filename:
-                        directory_to_extract_to = paths.depth
-                    else:
-                        directory_to_extract_to = paths.image
-
                     # extract the contents
                     zip_ref.extractall(directory_to_extract_to)
                     zip_ref.close()
