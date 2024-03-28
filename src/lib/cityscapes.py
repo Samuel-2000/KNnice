@@ -52,7 +52,8 @@ def download_cityscapes():
             if "disparity" in filename:
                 directory_to_extract_to = paths.depth
 
-            if os.path.join(directory_to_extract_to, filename).exists():
+            file_path = os.path.join(directory_to_extract_to, filename)
+            if os.path.exists(file_path):
                 print("dataset already downloaded")
                 continue
 
