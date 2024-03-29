@@ -51,11 +51,6 @@ def data_load(args):
 
         cityscapes_dataset = CityscapesDataset(paths.depth, paths.image)
 
-        print(len(cityscapes_dataset))
-
-        image, depth = cityscapes_dataset[350]
-        print(image.shape, depth.shape)
-
         # Create subsets
         train_set = Subset(cityscapes_dataset, range(len(cityscapes_dataset)))
         test_set = Subset(cityscapes_dataset, range(len(cityscapes_dataset)))
