@@ -11,6 +11,7 @@ import shutil
 import requests
 import zipfile
 
+
 def download_cityscapes():
     # URL for the login action
     login_url = 'https://www.cityscapes-dataset.com/login/'
@@ -42,8 +43,12 @@ def download_cityscapes():
 
         # send GET request to the download URLs
         for url in urls:
-            print(f"Downloading file from: {url}")
+            print(f"Fetching file from: {url}")
             response = session.get(url, stream=True)
+
+            if response.status_code != 200:
+                print(f"Dataset download error: {response.status_code}")
+                return
 
             # write the content to a file
             content_disposition = response.headers.get('content-disposition')
@@ -53,14 +58,14 @@ def download_cityscapes():
                 directory_to_extract_to = paths.depth
 
             file_path = os.path.join(directory_to_extract_to, filename)
-            if os.path.exists(file_path):
-                print("dataset already downloaded")
-                continue
 
-            os.makedirs(directory_to_extract_to, exist_ok=True)  # make dirs if not exist
-            with open(file_path, 'wb') as download_file:
-                for chunk in response.iter_content(chunk_size=8192):
-                    download_file.write(chunk)
+            # file not yet downloaded
+            if not os.path.exists(directory_to_extract_to):
+                print(f"Downloading file from: {url}")
+                os.makedirs(directory_to_extract_to, exist_ok=True)  # make dirs if not exist
+                with open(file_path, 'wb') as download_file:
+                    for chunk in response.iter_content(chunk_size=1048576):
+                        download_file.write(chunk)
 
                 print(f"File downloaded successfully as {file_path}")
 
@@ -69,13 +74,17 @@ def download_cityscapes():
                     # extract the contents
                     zip_ref.extractall(directory_to_extract_to)
                     zip_ref.close()
-                download_file.close()
 
             # remove old zip file, license and readme
-            os.remove(file_path)
-            os.remove(os.path.join(directory_to_extract_to, "license.txt"))
-            os.remove(os.path.join(directory_to_extract_to, "README"))
-            """
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+            if os.path.exists(os.path.join(directory_to_extract_to, "license.txt")):
+                os.remove(os.path.join(directory_to_extract_to, "license.txt"))
+
+            if os.path.exists(os.path.join(directory_to_extract_to, "README")):
+                os.remove(os.path.join(directory_to_extract_to, "README"))
+
             # parent folder to be removed
             core_folder = os.path.join(directory_to_extract_to, filename.split("_")[0])
 
@@ -92,7 +101,7 @@ def download_cityscapes():
 
             # remove the parent folder
             os.rmdir(core_folder)
-            """
+
 
 class CityscapesDataset(Dataset):
     def __init__(self, depth_dir: str, data_dir: str, resnet_weights: dict = resnet18(pretrained=False).state_dict()):
@@ -136,4 +145,3 @@ class CityscapesDataset(Dataset):
         depth = depth_transforms(depth)
 
         return image.float(), depth.float()
-
