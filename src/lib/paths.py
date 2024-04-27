@@ -46,19 +46,18 @@ imgs = Path(current_model_dir, "images")
 state = Path(current_model_dir, "state_")
 final_state = Path(current_model_dir, "final_state.pt")
 
-# directories for loss and accuracy during training
-loss_acc = Path(results, "Training_results")
+# directories for loss during training
+losses = Path(results, "Training_results")
 
-train_loss_path = Path(loss_acc, "train_loss_path.txt")
-experiment_train_loss_path = Path(loss_acc, "step_size_experiment_train_loss_path.txt")
-validation_loss_path = Path(loss_acc, "validation_loss.txt")
-validation_acc_path = Path(loss_acc, "validation_accuracy.txt")
+train_loss_path = Path(losses, "train_loss_path.txt")
+experiment_train_loss_path = Path(losses, "step_size_experiment_train_loss_path.txt")
+validation_loss_path = Path(losses, "validation_loss.txt")
 
 def init_dirs():
     """
     Function initializes directories
     """
-    dirs = [results, imgs, loss_acc, models_init_dir]
+    dirs = [results, imgs, losses, models_init_dir]
 
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)

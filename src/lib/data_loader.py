@@ -37,7 +37,7 @@ def data_load(args):
         test_set = Subset(cityscapes_dataset, range(train_count, train_count + test_count))
 
         val_count = subfolder_counts.get("val", 0)
-        print(f"test_count: {test_count}")
+        print(f"val_count: {val_count}")
         val_set = Subset(cityscapes_dataset, range(train_count + test_count, train_count + test_count + val_count))
 
 
@@ -45,9 +45,9 @@ def data_load(args):
         print("error - zly argument dataset")
         exit(0)
 
-    tr = range(len(train_set))
-    te = range(len(test_set))
-    val = range(len(val_set))
+    tr = range(1000)
+    te = range(100)
+    val = range(100)
 
     train_set = torch.utils.data.Subset(train_set, tr)
     test_set = torch.utils.data.Subset(test_set, te)

@@ -35,7 +35,6 @@ def get_net(device, train_loader, test_loader, args):
         exit(0)
 
     loss_list = []
-    acc_list = []
 
     # Save initial state of network if not saved yet
     if not paths.model_init_state.exists():
@@ -52,21 +51,18 @@ def get_net(device, train_loader, test_loader, args):
 
     # Train model if not trained yet
     if not final_state:
-        loss, acc = nets.test(model, test_loader, device)
+        loss = nets.test(model, test_loader, device)
         loss_list.append(loss)
-        acc_list.append(acc)
 
         for epoch in tqdm(range(1, args.epochs), desc="Model training"):
             nets.train(model, train_loader, optimizer, device, train_loss_file)
-            loss, acc = nets.test(model, test_loader, device)
+            loss = nets.test(model, test_loader, device)
             loss_list.append(loss)
-            acc_list.append(acc)
             torch.save(model.state_dict(), paths.state + f"{epoch}.pt")  # save final parameters of model
 
         torch.save(model.state_dict(), paths.final_state)  # save final parameters of model
 
         np.savetxt(paths.validation_loss_path, loss_list, fmt='%1.5f')
-        np.savetxt(paths.validation_acc_path, acc_list, fmt='%1.2f')
 
     model.load_state_dict(torch.load(paths.final_state, map_location=torch.device(device)))
 
