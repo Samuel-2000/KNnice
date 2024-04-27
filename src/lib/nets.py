@@ -4,6 +4,7 @@ from torch.nn import functional as F
 from torchvision.models import resnet18
 from .arg_parse import parse_arguments
 import segmentation_models_pytorch as smp # https://pypi.org/project/segmentation-models-pytorch/0.0.3/
+import tqdm
 
 
 class DepthModel(nn.Module):
@@ -140,7 +141,9 @@ def train(model, train_loader, optimizer, device, train_loss_file):
     model.train()
     train_loss = 0
 
-    for (data, target) in train_loader:
+    progress_bar = tqdm(enumerate(train_loader), total=len(train_loader))
+
+    for _, (data, target) in progress_bar:
         data, target = data.to(device), target.to(device)
 
         optimizer.zero_grad()
@@ -153,6 +156,9 @@ def train(model, train_loader, optimizer, device, train_loss_file):
         
         loss.backward()
         optimizer.step()
+
+        # Update progress bar description with current loss
+        progress_bar.set_description(f'Train Loss: {loss.item():.6f}')
 
         train_loss_file.write(f"{str(float(loss.data.cpu().numpy()))}\n")
 
@@ -179,13 +185,19 @@ def test(model, test_loader, device):
     model.eval()
     test_loss = 0
 
+    # Initialize tqdm to track progress
+    progress_bar = tqdm(enumerate(test_loader), total=len(test_loader))
+
     with torch.no_grad():
-        for data, target in test_loader:
+        for batch_idx, (data, target) in progress_bar:
             data, target = data.to(device), target.to(device)
             output = model(data)
             
             test_loss += F.mse_loss(output, target.view(-1, 1), reduction="sum").item()  # Assuming target is a single depth value per sample
-    
+            
+            # Update progress bar description with current loss
+            progress_bar.set_description(f'Test Loss: {test_loss / (batch_idx + 1):.6f}')
+
     test_loss /= len(test_loader.dataset)
 
     return test_loss
