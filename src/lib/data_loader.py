@@ -49,12 +49,12 @@ def data_load(args):
     tr = range(1000)
     te = range(100)
     val = range(100)
-    """
+    
     
     train_set = torch.utils.data.Subset(train_set, tr)
     test_set = torch.utils.data.Subset(test_set, te)
     val_set = torch.utils.data.Subset(val_set, val)
-
+    """
     # get data loaders
     train_loader = utils.data.DataLoader(train_set, 64, shuffle=True)
     test_loader = utils.data.DataLoader(test_set, 1000, shuffle=False)
