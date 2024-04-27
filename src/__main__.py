@@ -5,10 +5,10 @@ import os
 # might not be necessary if using IDE instead of command line.
 if os.name == 'posix':
     # Google Colab (Linux)
-    sys.path.insert(0, '/content/KNN_proj/src')
+    sys.path.insert(0, '/content/KNnice/src')
 else:
     # Windows
-    sys.path.insert(0, 'C:\\Users\\Samuel\\Desktop\\KNN_proj\\src')
+    sys.path.insert(0, 'C:\\Users\\Samuel\\Desktop\\KNnice\\src')
 
 import sys
 import torch

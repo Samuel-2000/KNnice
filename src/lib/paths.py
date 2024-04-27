@@ -28,8 +28,8 @@ all_steps_dir = Path(models_dir, "_all_steps")
 
 
 # current model directories
-model_names = ["VGG", "ModifiedLeNet", "depthModel"]
-dataset_names = ["_MNIST", "_CIFAR-10", "_CIFAR-100", "cityScapes"]
+model_names = ["depthModel"] #"ModifiedLeNet", 
+dataset_names = ["cityScapes"]
 
 name = model_names[model_arch]
 model_init_state = Path(models_init_dir, f"{name}_{dataset_names[dataset_name]}_init_state.pt")  # init_state

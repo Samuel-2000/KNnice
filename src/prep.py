@@ -27,7 +27,7 @@ def get_net(device, train_loader, test_loader, args):
     """
 
     # Create instance of neural network
-    model_classes = [nets.ModifiedLeNet, nets.VGG, nets.DepthModel]
+    model_classes = [nets.DepthModel] #nets.ModifiedLeNet
     try:
         model = model_classes[args.NNmodel]().to(device)
     except IndexError:
@@ -57,7 +57,7 @@ def get_net(device, train_loader, test_loader, args):
         acc_list.append(acc)
 
         for epoch in tqdm(range(1, args.epochs), desc="Model training"):
-            nets.train(model, train_loader, optimizer, device, epoch, train_loss_file)
+            nets.train(model, train_loader, optimizer, device, train_loss_file)
             loss, acc = nets.test(model, test_loader, device)
             loss_list.append(loss)
             acc_list.append(acc)

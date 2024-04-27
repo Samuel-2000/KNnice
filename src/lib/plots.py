@@ -16,7 +16,7 @@ color_trained = "dimgrey"
 font = FontProperties()
 font.set_size(20)
 
-
+"""
 def plot_all_layers(x):
     """
     Function plots all performance of the model with modified layers in one figure
@@ -58,3 +58,4 @@ def plot_all_layers(x):
     plt.savefig(os.path.join(paths.interpolation_img, f"all_({paths.name}).pdf"), format="pdf")
 
     plt.close("all")
+"""

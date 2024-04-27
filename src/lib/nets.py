@@ -98,7 +98,7 @@ class BaseNN(nn.Module):
         self.load_state_dict(state, strict=True)
         return self
 
-
+"""
 class ModifiedLeNet(BaseNN):
     def __init__(self):
         super(ModifiedLeNet, self).__init__()
@@ -115,48 +115,49 @@ class ModifiedLeNet(BaseNN):
             x = self.dropout(x)
         x = torch.flatten(x, 1)
         return F.log_softmax(self.fc1(x), dim=1)
-
-
-class VGG(BaseNN):
-    def __init__(self):
-        super(VGG, self).__init__()
-        self.conv1 = nn.Conv2d(self.input_channels_num, 16, 3, 1, padding='same')
-        self.conv2 = nn.Conv2d(16, 16, 3, 1, padding='same')
-        self.conv3 = nn.Conv2d(16, 32, 3, 1, padding='same')
-        self.conv4 = nn.Conv2d(32, 32, 3, 1, padding='same')
-        self.conv5 = nn.Conv2d(32, 64, 3, 1, padding='same')
-        self.conv6 = nn.Conv2d(64, 64, 3, 1, padding='same')
-        self.fc1 = nn.Linear(4 * 4 * 64, self.output_num)
-
-    def forward(self, x, test_dropout=False):
-        x = F.max_pool2d(F.relu(self.conv2(F.relu(self.conv1(x)))), 2)
-        x = F.max_pool2d(F.relu(self.conv4(F.relu(self.conv3(x)))), 2)
-        x = F.max_pool2d(F.relu(self.conv6(F.relu(self.conv5(x)))), 2)
-        if self.dropout_toggle == 1 and not test_dropout:
-            x = self.dropout(x)
-        x = torch.flatten(x, 1)
-        return F.log_softmax(self.fc1(x), dim=1)
-
-
-def train(model, train_loader, optimizer, device, epoch, train_loss_file):
+"""
+"""
+def train(model, train_loader, optimizer, device, train_loss_file):
     model.train()
     train_loss = 0
 
-    for batch_idx, (data, target) in enumerate(train_loader):
+    for (data, target) in train_loader:
         data, target = data.to(device), target.to(device)
 
         optimizer.zero_grad()
         output = model(data)
         loss = F.nll_loss(output, target)
-        train_loss += loss.item() * data.size(0)
+        train_loss += loss.item()# * data.size(0)
         loss.backward()
         optimizer.step()
 
         train_loss_file.write(f"{str(float(loss.data.cpu().numpy()))}\n")
 
     return train_loss / len(train_loader.dataset)
+"""
 
+def train(model, train_loader, optimizer, device, train_loss_file):
+    model.train()
+    train_loss = 0
 
+    for (data, target) in train_loader:
+        data, target = data.to(device), target.to(device)
+
+        optimizer.zero_grad()
+        output = model(data)
+        
+        # Adjust the loss function for regression
+        # For example, using Mean Squared Error (MSE) loss
+        loss = F.mse_loss(output, target.view(-1, 1))  # Assuming target is a single depth value per sample
+        train_loss += loss.item()
+        
+        loss.backward()
+        optimizer.step()
+
+        train_loss_file.write(f"{str(float(loss.data.cpu().numpy()))}\n")
+
+    return train_loss / len(train_loader.dataset)
+"""
 def test(model, test_loader, device):
     model.eval()
     test_loss = 0
@@ -172,3 +173,19 @@ def test(model, test_loader, device):
     accuracy = 100. * correct / len(test_loader.dataset)
 
     return test_loss, accuracy
+"""
+
+def test(model, test_loader, device):
+    model.eval()
+    test_loss = 0
+
+    with torch.no_grad():
+        for data, target in test_loader:
+            data, target = data.to(device), target.to(device)
+            output = model(data)
+            
+            test_loss += F.mse_loss(output, target.view(-1, 1), reduction="sum").item()  # Assuming target is a single depth value per sample
+    
+    test_loss /= len(test_loader.dataset)
+
+    return test_loss
