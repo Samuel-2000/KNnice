@@ -9,7 +9,7 @@ def train_net(args, device):
     """
     Prepares NN
     """
-    train_loader, test_loader = data_loader.data_load(args)
+    train_loader, test_loader, val_loader = data_loader.data_load(args)
     model = get_net(device, train_loader, test_loader, args)
 
     return train_loader, test_loader, model

@@ -103,34 +103,40 @@ def download_cityscapes():
             os.rmdir(core_folder)
 
 
+
 class CityscapesDataset(Dataset):
     def __init__(self, depth_dir: str, data_dir: str, resnet_weights: dict = resnet18(pretrained=False).state_dict()):
         self.depth_dir = depth_dir
-        self.data_dir = data_dir
+        self.data_dir = data_dir # /image
         self.resnet_weights = resnet_weights
         self.preprocess = Compose([
             Resize((224, 224)),
             ToTensor(),
         ])
+        self.all_images = []
+        # Traverse through all subdirectories and their files
+        for root, dirs, files in os.walk(self.data_dir):
+            self.all_images.extend([os.path.join(root, file) for file in files])
 
-    def __len__(self):
-        total_size = sum(len(files) for _, _, files in os.walk(self.data_dir))
-        return total_size
+        self.all_depths = []
+        # Traverse through all subdirectories and their files
+        for root, dirs, files in os.walk(self.depth_dir):
+            self.all_depths.extend([os.path.join(root, file) for file in files])
+
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        subfolder = None
-        for folder in os.listdir(self.data_dir):
-            dir_size = len(os.listdir(os.path.join(self.data_dir, folder)))
-            if idx < dir_size:
-                subfolder = folder
-                break
-            idx -= dir_size
 
-        image_path = os.path.join(self.data_dir, subfolder, os.listdir(os.path.join(self.data_dir, subfolder))[idx])
-        depth_path = os.path.join(self.depth_dir, subfolder, os.listdir(os.path.join(self.depth_dir, subfolder))[idx])
+        if idx >= len(self.all_images):
+            raise IndexError("Index out of range")
+        
+        # Select the image file based on idx
+        image_path = self.all_images[idx]
+        depth_path = self.all_depths[idx]
+
+        # todo I need image from the berlin directory
 
         image = Image.open(image_path).convert("RGB")
         depth = Image.open(depth_path)
@@ -145,3 +151,4 @@ class CityscapesDataset(Dataset):
         depth = depth_transforms(depth)
 
         return image.float(), depth.float()
+
