@@ -18,8 +18,8 @@ dropout = args.dropout
 proj_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 dataset = Path(proj_dir, "datasets")
 
-depth = Path(dataset, "depth/train")
-image = Path(dataset, "image/train")
+depth = Path(dataset, "depth")
+image = Path(dataset, "image")
 
 models_dir = Path(proj_dir, "models")
 
