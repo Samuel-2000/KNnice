@@ -39,6 +39,7 @@ def get_net(device, train_loader, test_loader, args):
     # Save initial state of network if not saved yet
     if not paths.model_init_state.exists():
         torch.save(model.state_dict(), paths.model_init_state)
+        
 
     # Initialize neural network model
     model.load_state_dict(torch.load(paths.model_init_state, map_location=torch.device(device)))
@@ -58,13 +59,14 @@ def get_net(device, train_loader, test_loader, args):
             nets.train(model, train_loader, optimizer, device, train_loss_file)
             loss = nets.test(model, test_loader, device)
             loss_list.append(loss)
-            torch.save(model.state_dict(), paths.state + f"{epoch}.pt")  # save final parameters of model
+            torch.save(model.state_dict(), str(paths.state) + f"{epoch}.pt")  # save final parameters of model
 
         torch.save(model.state_dict(), paths.final_state)  # save final parameters of model
 
         np.savetxt(paths.validation_loss_path, loss_list, fmt='%1.5f')
 
     model.load_state_dict(torch.load(paths.final_state, map_location=torch.device(device)))
+    
 
     train_loss_file.close()
 

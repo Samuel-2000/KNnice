@@ -45,10 +45,12 @@ def data_load(args):
         print("error - zly argument dataset")
         exit(0)
 
+    """
     tr = range(1000)
     te = range(100)
     val = range(100)
-
+    """
+    
     train_set = torch.utils.data.Subset(train_set, tr)
     test_set = torch.utils.data.Subset(test_set, te)
     val_set = torch.utils.data.Subset(val_set, val)
