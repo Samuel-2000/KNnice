@@ -4,7 +4,7 @@ from torch import utils as utils
 from torch.utils.data import Subset
 from .cityscapes import CityscapesDataset
 from .cityscapes import download_cityscapes
-
+import os
 
 
 def data_load(args):
@@ -25,17 +25,21 @@ def data_load(args):
 
         # Calculate the count of images in each subfolder
         for image_path in cityscapes_dataset.all_images:
-            subfolder = os.path.dirname(image_path)
+            subfolder = os.path.basename(os.path.dirname(os.path.dirname(image_path)))  # Extract the directory name
             subfolder_counts[subfolder] = subfolder_counts.get(subfolder, 0) + 1
 
         train_count = subfolder_counts.get("train", 0)
+        print(f"train_count: {train_count}")
         train_set = Subset(cityscapes_dataset, range(train_count))
 
         test_count = subfolder_counts.get("test", 0)
+        print(f"test_count: {test_count}")
         test_set = Subset(cityscapes_dataset, range(train_count, train_count + test_count))
 
         val_count = subfolder_counts.get("val", 0)
+        print(f"test_count: {test_count}")
         val_set = Subset(cityscapes_dataset, range(train_count + test_count, train_count + test_count + val_count))
+
 
     else:
         print("error - zly argument dataset")
