@@ -50,22 +50,23 @@ def get_net(device, train_loader, test_loader, args):
     train_loss_file = open(paths.train_loss_path, "a+")
     final_state = paths.final_state.exists()
 
+    if final_state:
+        model.load_state_dict(torch.load(paths.final_state, map_location=torch.device(device)))
+
     # Train model if not trained yet
-    if not final_state:
+#if not final_state:
+    loss = nets.test(model, test_loader, device)
+    loss_list.append(loss)
+
+    for epoch in tqdm(range(1, args.epochs), desc="Model training"):
+        nets.train(model, train_loader, optimizer, device, train_loss_file)
         loss = nets.test(model, test_loader, device)
         loss_list.append(loss)
+        torch.save(model.state_dict(), str(paths.state) + f"{epoch}.pt")  # save final parameters of model
 
-        for epoch in tqdm(range(1, args.epochs), desc="Model training"):
-            nets.train(model, train_loader, optimizer, device, train_loss_file)
-            loss = nets.test(model, test_loader, device)
-            loss_list.append(loss)
-            torch.save(model.state_dict(), str(paths.state) + f"{epoch}.pt")  # save final parameters of model
+    torch.save(model.state_dict(), paths.final_state)  # save final parameters of model
 
-        torch.save(model.state_dict(), paths.final_state)  # save final parameters of model
-
-        np.savetxt(paths.validation_loss_path, loss_list, fmt='%1.5f')
-
-    model.load_state_dict(torch.load(paths.final_state, map_location=torch.device(device)))
+    np.savetxt(paths.validation_loss_path, loss_list, fmt='%1.5f')
     
 
     train_loss_file.close()
