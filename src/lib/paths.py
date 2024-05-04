@@ -51,7 +51,7 @@ losses = Path(results, "Training_results")
 
 train_loss_path = Path(losses, "train_loss_path.txt")
 experiment_train_loss_path = Path(losses, "step_size_experiment_train_loss_path.txt")
-validation_loss_path = Path(losses, "validation_loss.txt")
+test_validation_loss_path = Path(losses, "validation_loss.txt")
 
 def init_dirs():
     """

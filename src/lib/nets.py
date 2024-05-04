@@ -161,23 +161,30 @@ def train(model, train_loader, optimizer, device, train_loss_file):
         train_loss_file.write(f"{str(float(loss.data.cpu().numpy()))}\n")
 
     return train_loss / len(train_loader.dataset)
-"""
-def test(model, test_loader, device):
+
+
+
+def validate(model, val_loader, device):
     model.eval()
-    test_loss = 0
-    correct = 0
+    val_loss = 0
+
+    # Initialize tqdm to track progress
+    progress_bar = tqdm(enumerate(val_loader), total=len(val_loader))
+
     with torch.no_grad():
-        for data, target in test_loader:
+        for batch_idx, (data, target) in progress_bar:
             data, target = data.to(device), target.to(device)
             output = model(data)
-            test_loss += F.nll_loss(output, target, reduction="sum").item()
-            correct += (output.argmax(dim=1) == target).sum().item()
+            
+            loss = F.mse_loss(output, target)
+            val_loss += loss.item()
+            
+            progress_bar.set_description(f'Validation Loss: {loss.item()}')
 
-    test_loss /= len(test_loader.dataset)
-    accuracy = 100. * correct / len(test_loader.dataset)
+    val_loss /= len(val_loader.dataset)
+    return val_loss
 
-    return test_loss, accuracy
-"""
+
 
 def test(model, test_loader, device):
     model.eval()
