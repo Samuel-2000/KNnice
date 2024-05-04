@@ -10,52 +10,45 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 from . import paths
+import torch
 
 color_trained = "dimgrey"
 
 font = FontProperties()
 font.set_size(20)
 
-"""
-def plot_all_layers(x):
-    """
-    Function plots all performance of the model with modified layers in one figure
 
-    :param x: data for x-axis (interpolation coefficient)
-    """
-    fig, (ax, ax2) = plt.subplots(1, 2, figsize=(8, 3))
+def plot_depth_activations(model, test_loader, device, save_path):
+    inputs, targets = next(iter(test_loader))
+    print(len(inputs))
+    print(len(inputs[0]))
+    inputs = inputs.to(device)
+    targets = targets.to(device)
+    
+    # Forward pass
+    outputs = model(inputs)
+    
+    # Convert tensors to numpy arrays
+    inputs_np = inputs.cpu().numpy()
+    targets_np = targets.cpu().numpy()
+    outputs_np = outputs.cpu().numpy()
 
-    ax.spines["right"].set_visible(False)
-    ax.spines["top"].set_visible(False)
-    ax.set_ylabel("Validation loss")
-    ax.set_xlabel(r"$\alpha$")
+    # Plot images
+    fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(12, 8))
 
-    ax2.spines["right"].set_visible(False)
-    ax2.set_ylabel("Accuracy")
-    ax2.set_xlabel(r"$\alpha$")
+    # Plot input image
+    axes[0].imshow(inputs_np[0].transpose(1, 2, 0))  # Assuming channels-last format
+    axes[0].set_title('Input Image')
 
-    files = [file for file in os.listdir(paths.layers) if not re.search("distance", file) and not re.search("q", file)]
-    for file in files:
-        lab = file.split('_')[-1][0:-4]
-        if re.search("loss", file):
-            ax.plot(x, np.loadtxt(os.path.join(paths.layers, file)), label=lab, lw=1)
-        if re.search("acc", file):
-            ax2.plot(x, np.loadtxt(os.path.join(paths.layers, file)), lw=1)
+    # Plot ground truth depth
+    axes[1].imshow(targets_np[0].squeeze(), cmap='gray')
+    axes[1].set_title('Ground Truth Depth')
 
-    ax.plot(x, np.loadtxt(paths.loss_interpolated_model_path), label="all", color=color_trained, linewidth=1)
-    ax.axvline(x=0, color='black', linestyle=':', linewidth=0.8, alpha=0.8)
-    ax.axvline(x=1, color='black', linestyle=':', linewidth=0.8, alpha=0.8)
-    ax.set_ylim(bottom=0)
+    # Plot network's depth prediction
+    axes[2].imshow(outputs_np[0].squeeze(), cmap='gray')
+    axes[2].set_title('Network Depth Prediction')
 
-    ax2.plot(x, np.loadtxt(paths.accuracy_interpolated_model_path), color=color_trained, linewidth=1)
-    ax2.axvline(x=0, color='black', linestyle=':', linewidth=0.8, alpha=0.8)
-    ax2.axvline(x=1, color='black', linestyle=':', linewidth=0.8, alpha=0.8)
-    ax2.set_ylim(0, 100)
-
-    fig.legend()
-    fig.subplots_adjust(bottom=0.17)
-
-    plt.savefig(os.path.join(paths.interpolation_img, f"all_({paths.name}).pdf"), format="pdf")
-
-    plt.close("all")
-"""
+    # Save the figure
+    plt.tight_layout()
+    plt.savefig(save_path)
+    plt.close()

@@ -15,6 +15,7 @@ import torch
 import prep
 from lib import paths
 from lib.arg_parse import parse_arguments
+from lib import plots
 
 if __name__ == '__main__':
     args = parse_arguments()
@@ -25,6 +26,8 @@ if __name__ == '__main__':
 
     if args.train:
         print(f"\tin train")
-        prep.train_net(args, device)
+        model, test_loader = prep.train_net(args, device)
+        plots.plot_depth_activations(model, test_loader, device, 'depth_activations.png')
+    
 
 sys.exit(0)

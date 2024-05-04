@@ -12,7 +12,7 @@ def train_net(args, device):
     train_loader, test_loader, val_loader = data_loader.data_load(args)
     model = get_net(device, train_loader, val_loader, test_loader, args)
 
-    return train_loader, test_loader, model
+    return model, test_loader
 
 
 def get_net(device, train_loader, val_loader, test_loader, args):
@@ -34,29 +34,19 @@ def get_net(device, train_loader, val_loader, test_loader, args):
         print("Error: model not specified")
         exit(0)
 
-    test_val_loss_list = []
-
-    # Save initial state of network if not saved yet
-    if not paths.model_init_state.exists():
-        torch.save(model.state_dict(), paths.model_init_state)
+    
+    if paths.final_state.exists():
+        print("using saved final state for training")
+        model.load_state_dict(torch.load(paths.final_state, map_location=torch.device(device)))
         
-
-    # Initialize neural network model
-    model.load_state_dict(torch.load(paths.model_init_state, map_location=torch.device(device)))
+    torch.save(model.state_dict(), paths.model_init_state) # return point if training goes bad.
 
     optimizer_class = optim.Adam if args.adam else optim.SGD
     optimizer = optimizer_class(model.parameters(), lr=0.01)  # set optimizer
 
     train_loss_file = open(paths.train_loss_path, "a+")
-    final_state = paths.final_state.exists()
-
-    if final_state:
-        print("using saved final state for training")
-        model.load_state_dict(torch.load(paths.final_state, map_location=torch.device(device)))
-
-    # Train model if not trained yet
-#if not final_state:
-    for epoch in tqdm(range(1, args.epochs), desc="Model training"):
+    test_val_loss_list = []
+    for epoch in tqdm(range(0, args.epochs), desc="Model training"):
         nets.train(model, train_loader, optimizer, device, train_loss_file)
         test_val_loss_list.append(nets.validate(model, val_loader, device))
 
