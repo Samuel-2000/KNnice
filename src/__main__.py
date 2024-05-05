@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     print(f"\tin train")
     model, first_test_case = prep.get_network(args, device)
-    plots.plot_depth_activations(model, first_test_case, device, 'depth_activations.png')
+    plots.plot_depth_activations(model, first_test_case, device, paths.imgs)
     
 
 sys.exit(0)
