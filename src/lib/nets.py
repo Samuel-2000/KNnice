@@ -6,6 +6,37 @@ from .arg_parse import parse_arguments
 import segmentation_models_pytorch as smp # https://pypi.org/project/segmentation-models-pytorch/0.0.3/
 from tqdm import tqdm
 
+"""
+class DepthModel(nn.Module):
+    def __init__(self, backbone='resnet18'):
+        super(DepthModel, self).__init__()
+        if backbone == 'resnet18':
+            resnet = smp.Unet('resnet18', encoder_weights='imagenet')
+        elif backbone == 'resnet50':
+            resnet = smp.Unet('resnet50', encoder_weights='imagenet')
+        else:
+            raise ValueError("Backbone not supported")
+        
+        self.encoder = resnet.encoder
+        
+        # Adjusting the bridge layer to match the expected number of input channels
+        self.bridge = nn.Sequential(
+            nn.Conv2d(512, 256, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True)
+        )
+        
+        self.decoderBlocks = resnet.decoder.blocks
+
+    def forward(self, x):
+        features = self.encoder(x)
+        x = self.bridge(features[-1])
+
+        for block in self.decoderBlocks:
+            x = block(x)
+
+        return x
+"""
+
 
 class DepthModel(nn.Module):
     def __init__(self):

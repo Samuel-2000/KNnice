@@ -110,7 +110,8 @@ class CityscapesDataset(Dataset):
         self.data_dir = data_dir # /image
         self.resnet_weights = resnet_weights
         self.preprocess = Compose([
-            Resize((224, 224)),
+            #Resize((448, 448)),
+            CenterCrop((900, 1800)),
             ToTensor(),
         ])
         self.all_images = []
@@ -144,8 +145,8 @@ class CityscapesDataset(Dataset):
         image = self.preprocess(image)
 
         depth_transforms = Compose([
-            Resize((256, 256)),
-            CenterCrop((224, 224)),
+            #Resize((512, 512)),   original: 2048x1024
+            CenterCrop((900, 1800)),
             ToTensor(),
         ])
         depth = depth_transforms(depth)
