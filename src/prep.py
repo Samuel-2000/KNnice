@@ -5,17 +5,17 @@ from torch import optim as optim
 from lib import data_loader, nets, paths
 
 
-def train_net(args, device):
+def get_network(args, device):
     """
     Prepares NN
     """
-    train_loader, test_loader, val_loader = data_loader.data_load(args)
-    model = get_net(device, train_loader, val_loader, test_loader, args)
+    train_loader, test_loader, val_loader, first_test_case = data_loader.data_load(args)
+    model = retrieve_trained_net(device, train_loader, val_loader, test_loader, args)
 
-    return model, test_loader
+    return model, first_test_case
 
 
-def get_net(device, train_loader, val_loader, test_loader, args):
+def retrieve_trained_net(device, train_loader, val_loader, test_loader, args):
     """
     Function prepares a neural network model for experiments
 

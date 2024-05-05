@@ -25,8 +25,8 @@ if __name__ == '__main__':
     print(f"Using: {device}")
 
     print(f"\tin train")
-    model, test_loader = prep.train_net(args, device)
-    plots.plot_depth_activations(model, test_loader, device, 'depth_activations.png')
+    model, first_test_case = prep.get_network(args, device)
+    plots.plot_depth_activations(model, first_test_case, device, 'depth_activations.png')
     
 
 sys.exit(0)

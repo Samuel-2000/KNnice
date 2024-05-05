@@ -18,11 +18,12 @@ font = FontProperties()
 font.set_size(20)
 
 
-def plot_depth_activations(model, test_loader, device, save_path):
-    image, target = next(iter(test_loader))[0]
+def plot_depth_activations(model, first_test_case, device, save_path):
+    image, target = first_test_case
     print(len(image))
+    print(len(target))
+    
     image = image.to(device)
-    target = target.to(device)
     
     # Forward pass
     output = model(image)
@@ -47,7 +48,11 @@ def plot_depth_activations(model, test_loader, device, save_path):
     axes[2].imshow(output_np[0].squeeze(), cmap='gray')
     axes[2].set_title('Network Depth Prediction')
 
-    # Save the figure
+    # Show the figure
     plt.tight_layout()
-    plt.savefig(save_path)
-    plt.close()
+    plt.show()
+
+    # Save the figure if save_path is provided
+    if save_path:
+        plt.savefig(save_path)
+        plt.close()

@@ -60,5 +60,5 @@ def data_load(args):
     test_loader = utils.data.DataLoader(test_set, test_count, shuffle=False)
     val_loader = utils.data.DataLoader(val_set, val_count, shuffle=True)
 
-    return train_loader, test_loader, val_loader
+    return train_loader, test_loader, val_loader, test_set[0]
 
