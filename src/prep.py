@@ -41,20 +41,21 @@ def get_net(device, train_loader, val_loader, test_loader, args):
         
     torch.save(model.state_dict(), paths.model_init_state) # return point if training goes bad.
 
-    optimizer_class = optim.Adam if args.adam else optim.SGD
-    optimizer = optimizer_class(model.parameters(), lr=0.01)  # set optimizer
+    if args.train:
+        optimizer_class = optim.Adam if args.adam else optim.SGD
+        optimizer = optimizer_class(model.parameters(), lr=0.01)  # set optimizer
 
-    train_loss_file = open(paths.train_loss_path, "a+")
-    test_val_loss_list = []
-    for epoch in tqdm(range(0, args.epochs), desc="Model training"):
-        nets.train(model, train_loader, optimizer, device, train_loss_file)
-        test_val_loss_list.append(nets.validate(model, val_loader, device))
+        train_loss_file = open(paths.train_loss_path, "a+")
+        test_val_loss_list = []
+        for epoch in tqdm(range(0, args.epochs), desc="Model training"):
+            nets.train(model, train_loader, optimizer, device, train_loss_file)
+            test_val_loss_list.append(nets.validate(model, val_loader, device))
 
-    train_loss_file.close()
-    torch.save(model.state_dict(), paths.final_state)  # save final parameters of model
-    
-    test_val_loss_list.append(nets.test(model, test_loader, device))
-    np.savetxt(paths.test_validation_loss_path, test_val_loss_list, fmt='%1.5f')
+        train_loss_file.close()
+        torch.save(model.state_dict(), paths.final_state)  # save final parameters of model
+        
+        test_val_loss_list.append(nets.test(model, test_loader, device))
+        np.savetxt(paths.test_validation_loss_path, test_val_loss_list, fmt='%1.5f')
 
     return model  # return neural network in final (trained) state
 

@@ -24,10 +24,9 @@ if __name__ == '__main__':
     device = torch.device("cuda" if use_cuda else "cpu")
     print(f"Using: {device}")
 
-    if args.train:
-        print(f"\tin train")
-        model, test_loader = prep.train_net(args, device)
-        plots.plot_depth_activations(model, test_loader, device, 'depth_activations.png')
+    print(f"\tin train")
+    model, test_loader = prep.train_net(args, device)
+    plots.plot_depth_activations(model, test_loader, device, 'depth_activations.png')
     
 
 sys.exit(0)
