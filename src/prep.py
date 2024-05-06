@@ -47,10 +47,17 @@ def retrieve_trained_net(device, train_loader, val_loader, test_loader, args):
 
         train_loss_file = open(paths.train_loss_path, "a+")
         test_val_loss_list = []
+        min_vall_loss = 99999999999
         for epoch in tqdm(range(0, args.epochs), desc="Model training"):
             nets.train(model, train_loader, optimizer, device, train_loss_file)
-            test_val_loss_list.append(nets.validate(model, val_loader, device))
+            val_loss = nets.validate(model, val_loader, device)
+            test_val_loss_list.append(val_loss)
             torch.save(model.state_dict(), paths.final_state)  # save parameters of model
+            if val_loss < min_vall_loss:
+                min_vall_loss = val_loss
+            else:
+                print("premature break because validation loss got higher (overtraining)")
+                break
 
         train_loss_file.close()
         
