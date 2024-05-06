@@ -110,8 +110,8 @@ class CityscapesDataset(Dataset):
         self.data_dir = data_dir # /image
         self.resnet_weights = resnet_weights
         self.preprocess = Compose([
-            #Resize((448, 448)),
-            CenterCrop((900, 1800)),
+            CenterCrop((896, 1792)),
+            Resize((224, 448)),
             ToTensor(),
         ])
         self.all_images = []
@@ -129,7 +129,6 @@ class CityscapesDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-
         if idx >= len(self.all_images):
             raise IndexError("Index out of range")
         
@@ -143,13 +142,13 @@ class CityscapesDataset(Dataset):
         depth = Image.open(depth_path)
 
         image = self.preprocess(image)
+        depth = self.preprocess(depth)
 
-        depth_transforms = Compose([
-            #Resize((512, 512)),   original: 2048x1024
-            CenterCrop((900, 1800)),
-            ToTensor(),
-        ])
-        depth = depth_transforms(depth)
+        # depth_transforms = Compose([
+        #     #Resize((512, 512)),   original: 2048x1024
+        #     CenterCrop((928, 1824)),
+        #     ToTensor(),
+        # ])
 
         return image.float(), depth.float()
 
