@@ -1,9 +1,8 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
-from torchvision.models import resnet18
+from torchvision.models import resnet18, resnet34, resnet50, ResNet50_Weights, ResNet34_Weights
 from .arg_parse import parse_arguments
-import segmentation_models_pytorch as smp # https://pypi.org/project/segmentation-models-pytorch/0.0.3/
 from tqdm import tqdm
 
 """
@@ -41,12 +40,14 @@ class DepthModel(nn.Module):
 class DepthModel(nn.Module):
     def __init__(self):
         super(DepthModel, self).__init__()
-        resnet = resnet18(pretrained=True)
+        resnet = resnet34(weights=ResNet34_Weights.DEFAULT)
         self.resnet = nn.Sequential(*(list(resnet.children())[:-2]))
 
         self.bridge = Bridge(512)
 
         self.decoderBlocks = nn.ModuleList([
+            # DecoderBlock(2048, 1024),
+            # DecoderBlock(1024, 512),
             DecoderBlock(512, 256),
             DecoderBlock(256, 128),
             DecoderBlock(128, 64),
