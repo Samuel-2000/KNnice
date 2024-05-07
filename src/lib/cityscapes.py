@@ -11,6 +11,8 @@ import shutil
 import requests
 import zipfile
 
+import random
+
 
 def download_cityscapes():
     # URL for the login action
@@ -112,7 +114,17 @@ class CityscapesDataset(Dataset):
         self.preprocess = Compose([
             CenterCrop((896, 1792)),
             Resize((224, 448)),
-            ToTensor(),
+            ToTensor()
+        ])
+        self.preprocess_2x = Compose([
+            CenterCrop((896, 1792)),
+            Resize((448, 896)),
+            ToTensor()
+        ])
+        self.preprocess_4x = Compose([
+            CenterCrop((896, 1792)),
+            #Resize((896, 1792)),
+            ToTensor()
         ])
         self.all_images = []
         # Traverse through all subdirectories and their files
@@ -139,8 +151,18 @@ class CityscapesDataset(Dataset):
         image = Image.open(image_path).convert("RGB")
         depth = Image.open(depth_path)
 
-        image = self.preprocess(image)
-        depth = self.preprocess(depth)
+        size_index = random.randint(0, 2)
+
+        if size_index == 0:
+            image = self.preprocess(image)
+            depth = self.preprocess(depth)
+        elif size_index == 1:
+            image = self.preprocess_2x(image)
+            depth = self.preprocess_2x(depth)
+        else:
+            image = self.preprocess_4x(image)
+            depth = self.preprocess_4x(depth)
+
 
         return image.float(), depth.float()
 

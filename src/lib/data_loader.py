@@ -56,9 +56,9 @@ def data_load(args):
     val_set = torch.utils.data.Subset(val_set, val)
     
     # get data loaders
-    train_loader = utils.data.DataLoader(train_set, 4, shuffle=True)
-    test_loader = utils.data.DataLoader(test_set, 10, shuffle=False)
-    val_loader = utils.data.DataLoader(val_set, 10, shuffle=False)
+    train_loader = utils.data.DataLoader(train_set, 1, shuffle=True) #True
+    test_loader = utils.data.DataLoader(test_set, 1, shuffle=False)
+    val_loader = utils.data.DataLoader(val_set, 1, shuffle=False)
 
     return train_loader, test_loader, val_loader, test_set[0]
 
