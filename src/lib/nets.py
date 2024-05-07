@@ -99,9 +99,10 @@ def train(model, train_loader, optimizer, device, train_loss_file):
         # Update progress bar description with current loss
         progress_bar.set_description(f'Train Loss: {loss.item()}')
 
-        train_loss_file.write(f"{str(float(loss.data.cpu().numpy()))}\n")
 
-    return train_loss / len(train_loader.dataset)
+    train_loss /= len(train_loader.dataset)
+    print(f"average train loss: {train_loss}")
+    return train_loss
 
 
 

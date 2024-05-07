@@ -35,23 +35,28 @@ def retrieve_trained_net(device, train_loader, val_loader, test_loader, args):
         optimizer = optimizer_class(model.parameters(), lr=0.01)  # set optimizer
 
         train_loss_file = open(paths.train_loss_path, "a+")
-        test_val_loss_list = []
-        min_vall_loss = None
+        val_loss_file = open(paths.val_loss_path, "a+")
+#
+        min_vall_loss = float('inf')
         for epoch in tqdm(range(0, args.epochs), desc="Model training"):
-            nets.train(model, train_loader, optimizer, device, train_loss_file)
+            train_loss = nets.train(model, train_loader, optimizer, device, train_loss_file)
             val_loss = nets.validate(model, val_loader, device)
-            test_val_loss_list.append(val_loss)
+
             torch.save(model.state_dict(), paths.final_state)  # save parameters of model
-            if val_loss is None or val_loss < min_vall_loss:
-                min_vall_loss = val_loss
-            else:
-                print(f"premature break because validation loss got higher (overtraining) after epoch: {epoch}")
-                break
+
+            #train_loss_file.write(f"{str(float(train_loss.data.cpu().numpy()))}\n")
+            train_loss_file.write(f"{str(train_loss)}\n")
+            val_loss_file.write(f"{str(val_loss)}\n")
+
+            if epoch % 5 == 0:
+                if val_loss < min_vall_loss:
+                    min_vall_loss = val_loss
+                else:
+                    print(f"premature break because validation loss got higher (overtraining) after epoch: {epoch}")
+                    break
 
         train_loss_file.close()
-        
-        test_val_loss_list.append(nets.test(model, test_loader, device))
-        np.savetxt(paths.test_validation_loss_path, test_val_loss_list, fmt='%1.5f')
+        val_loss_file.close()
 
     return model  # return neural network in final (trained) state
 
