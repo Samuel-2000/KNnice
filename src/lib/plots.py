@@ -53,6 +53,22 @@ def plot_depth_activations(model, first_test_case, device, path):
     plt.savefig(output_save_path)
     plt.close()
 
-
-def plot_losses(model, device, path):
-    pass
+def plot_losses(train_loss_path, val_loss_path):
+    # Read train loss and validation loss from files
+    with open(train_loss_path, "r") as train_file:
+        train_losses = [float(line.strip()) for line in train_file.readlines()]
+    
+    with open(val_loss_path, "r") as val_file:
+        val_losses = [float(line.strip()) for line in val_file.readlines()]
+    
+    # Plotting
+    plt.figure(figsize=(10, 5))
+    epochs = range(1, len(train_losses) + 1)
+    plt.plot(epochs, train_losses, label='Train Loss', marker='o')
+    plt.plot(epochs, val_losses, label='Validation Loss', marker='o')
+    plt.title('Training and Validation Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
