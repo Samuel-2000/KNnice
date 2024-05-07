@@ -214,6 +214,7 @@ def validate(model, val_loader, device):
             progress_bar.set_description(f'Validation Loss: {loss.item()}')
 
     val_loss /= len(val_loader.dataset)
+    print(f"average validation loss: {val_loss}")
     return val_loss
 
 
@@ -236,5 +237,6 @@ def test(model, test_loader, device):
             progress_bar.set_description(f'Test Loss: {loss.item()}')
 
     test_loss /= len(test_loader.dataset)
+    print(f"average test loss: {test_loss}")
 
     return test_loss
