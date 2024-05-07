@@ -136,19 +136,11 @@ class CityscapesDataset(Dataset):
         image_path = self.all_images[idx]
         depth_path = self.all_depths[idx]
 
-        # todo I need image from the berlin directory
-
         image = Image.open(image_path).convert("RGB")
         depth = Image.open(depth_path)
 
         image = self.preprocess(image)
         depth = self.preprocess(depth)
-
-        # depth_transforms = Compose([
-        #     #Resize((512, 512)),   original: 2048x1024
-        #     CenterCrop((928, 1824)),
-        #     ToTensor(),
-        # ])
 
         return image.float(), depth.float()
 

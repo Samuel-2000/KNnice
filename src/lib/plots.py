@@ -52,3 +52,7 @@ def plot_depth_activations(model, first_test_case, device, path):
     axes.set_title('Network Depth Prediction')
     plt.savefig(output_save_path)
     plt.close()
+
+
+def plot_losses(model, device, path):
+    pass

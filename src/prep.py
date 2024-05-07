@@ -6,9 +6,6 @@ from lib import data_loader, nets, paths
 
 
 def get_network(args, device):
-    """
-    Prepares NN
-    """
     train_loader, test_loader, val_loader, first_test_case = data_loader.data_load(args)
     model = retrieve_trained_net(device, train_loader, val_loader, test_loader, args)
 
@@ -16,18 +13,8 @@ def get_network(args, device):
 
 
 def retrieve_trained_net(device, train_loader, val_loader, test_loader, args):
-    """
-    Function prepares a neural network model for experiments
-
-    :param device: device to use
-    :param train_loader: training dataset loader
-    :param test_loader: test dataset loader
-    :param args: arguments
-    :return: NN model
-    """
-
     # Create instance of neural network
-    model_classes = [nets.DepthModel] #nets.ModifiedLeNet
+    model_classes = [nets.DepthModel]
     try:
         model = model_classes[args.NNmodel]().to(device)
     except IndexError:
@@ -38,8 +25,10 @@ def retrieve_trained_net(device, train_loader, val_loader, test_loader, args):
     if paths.final_state.exists():
         print("using saved final state for training")
         model.load_state_dict(torch.load(paths.final_state, map_location=torch.device(device)))
-        
-    torch.save(model.state_dict(), paths.model_init_state) # return point if training goes bad.
+        torch.save(model.state_dict(), paths.model_init_state) # return point if training goes bad.
+    elif paths.model_init_state.exists():
+        model.load_state_dict(torch.load(paths.model_init_state, map_location=torch.device(device)))
+
 
     if args.train:
         optimizer_class = optim.Adam if args.adam else optim.SGD
@@ -47,16 +36,16 @@ def retrieve_trained_net(device, train_loader, val_loader, test_loader, args):
 
         train_loss_file = open(paths.train_loss_path, "a+")
         test_val_loss_list = []
-        min_vall_loss = 99999999999
+        min_vall_loss = None
         for epoch in tqdm(range(0, args.epochs), desc="Model training"):
             nets.train(model, train_loader, optimizer, device, train_loss_file)
             val_loss = nets.validate(model, val_loader, device)
             test_val_loss_list.append(val_loss)
             torch.save(model.state_dict(), paths.final_state)  # save parameters of model
-            if val_loss < min_vall_loss:
+            if val_loss is None or val_loss < min_vall_loss:
                 min_vall_loss = val_loss
             else:
-                print("premature break because validation loss got higher (overtraining)")
+                print(f"premature break because validation loss got higher (overtraining) after epoch: {epoch}")
                 break
 
         train_loss_file.close()

@@ -5,37 +5,6 @@ from torchvision.models import resnet18, resnet34, resnet50, ResNet50_Weights, R
 from .arg_parse import parse_arguments
 from tqdm import tqdm
 
-"""
-class DepthModel(nn.Module):
-    def __init__(self, backbone='resnet18'):
-        super(DepthModel, self).__init__()
-        if backbone == 'resnet18':
-            resnet = smp.Unet('resnet18', encoder_weights='imagenet')
-        elif backbone == 'resnet50':
-            resnet = smp.Unet('resnet50', encoder_weights='imagenet')
-        else:
-            raise ValueError("Backbone not supported")
-        
-        self.encoder = resnet.encoder
-        
-        # Adjusting the bridge layer to match the expected number of input channels
-        self.bridge = nn.Sequential(
-            nn.Conv2d(512, 256, kernel_size=3, padding=1),
-            nn.ReLU(inplace=True)
-        )
-        
-        self.decoderBlocks = resnet.decoder.blocks
-
-    def forward(self, x):
-        features = self.encoder(x)
-        x = self.bridge(features[-1])
-
-        for block in self.decoderBlocks:
-            x = block(x)
-
-        return x
-"""
-
 
 class DepthModel(nn.Module):
     def __init__(self):
@@ -107,67 +76,7 @@ class Bridge(nn.Module):
         return self.bridge(x)
 
 
-class BaseNN(nn.Module):
-    def __init__(self):
-        super(BaseNN, self).__init__()
-        args = parse_arguments()
-        self.dropout = nn.Dropout(0.5)
-        self.dropout_toggle = args.dropout
-        self.input_channels_num = 1 if args.dataset == 0 else 3
-        self.output_num = 100 if args.dataset == 2 else 10
 
-    def get_flat_params(self, device):
-        params = [param.data for _, param in self.named_parameters()]
-        flat_params = torch.cat([torch.flatten(param) for param in params]).to(device)
-        return flat_params
-
-    def load_from_flat_params(self, f_params):
-        shapes = [(name, param.shape, param.numel()) for name, param in self.named_parameters()]
-        state = {}
-        c = 0
-        for name, tsize, tnum in shapes:
-            state[name] = torch.nn.Parameter(f_params[c: c + tnum].reshape(tsize))
-            c += tnum
-        self.load_state_dict(state, strict=True)
-        return self
-
-"""
-class ModifiedLeNet(BaseNN):
-    def __init__(self):
-        super(ModifiedLeNet, self).__init__()
-        self.conv1 = nn.Conv2d(self.input_channels_num, 5, 3, 1)
-        self.conv2 = nn.Conv2d(5, 10, 3, 1)
-        self.conv3 = nn.Conv2d(10, 10, 3, 1)
-        self.fc1 = nn.Linear(10 * 2 * 2, self.output_num)
-
-    def forward(self, x, test_dropout=False):
-        x = F.max_pool2d(F.relu(self.conv1(x)), 2)
-        x = F.max_pool2d(F.relu(self.conv2(x)), 2)
-        x = F.max_pool2d(F.relu(self.conv3(x)), 2)
-        if self.dropout_toggle == 1 and not test_dropout:
-            x = self.dropout(x)
-        x = torch.flatten(x, 1)
-        return F.log_softmax(self.fc1(x), dim=1)
-"""
-"""
-def train(model, train_loader, optimizer, device, train_loss_file):
-    model.train()
-    train_loss = 0
-
-    for (data, target) in train_loader:
-        data, target = data.to(device), target.to(device)
-
-        optimizer.zero_grad()
-        output = model(data)
-        loss = F.nll_loss(output, target)
-        train_loss += loss.item()# * data.size(0)
-        loss.backward()
-        optimizer.step()
-
-        train_loss_file.write(f"{str(float(loss.data.cpu().numpy()))}\n")
-
-    return train_loss / len(train_loader.dataset)
-"""
 
 def train(model, train_loader, optimizer, device, train_loss_file):
     model.train()
