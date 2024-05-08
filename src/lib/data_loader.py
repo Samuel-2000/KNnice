@@ -48,12 +48,12 @@ def data_load(args):
     
     #tr = range(1000)
     te = range(1000)
-    val = range(100)
+    #val = range(100)
     
         # chooses only subsety of data (performance)
     #train_set = torch.utils.data.Subset(train_set, tr)
     test_set = torch.utils.data.Subset(test_set, te)
-    val_set = torch.utils.data.Subset(val_set, val)
+    #val_set = torch.utils.data.Subset(val_set, val)
     
     # get data loaders
     train_loader = utils.data.DataLoader(train_set, 1, shuffle=True) #True
