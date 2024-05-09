@@ -151,7 +151,8 @@ class CityscapesDataset(Dataset):
         image = Image.open(image_path).convert("RGB")
         depth = Image.open(depth_path)
 
-        size_index = random.randint(0, 2)
+        #size_index = random.randint(0, 2)
+        size_index = 0
 
         if size_index == 0:
             image = self.preprocess(image)

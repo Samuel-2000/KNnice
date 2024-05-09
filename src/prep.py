@@ -48,7 +48,7 @@ def retrieve_trained_net(device, train_loader, val_loader, test_loader, args):
             train_loss_file.write(f"{str(train_loss)}\n")
             val_loss_file.write(f"{str(val_loss)}\n")
 
-            if epoch % 5 == 0:
+            if epoch % 20 == 0:
                 if val_loss < min_vall_loss:
                     min_vall_loss = val_loss
                 else:
